@@ -1,0 +1,26 @@
+1、用dev-c++创建dll项目，注意项目名称不能有中文；
+2、把准备好的xx.h和xx.cpp添加到dll项目；
+3、工具 -> 编译选项 -> 设定编译器配置，选择适配运行环境的编译器（32或64）
+       工具 -> 编译选项 -> 目录，把jni.h所在目录（比如C:\Program Files\Java\jdk1.8.0_152\include）添加到“包含文件”选项卡中；
+4、编译生成dll文件；
+5、在自己的java项目中引入dll文件即可；
+6、如果是在IDE里运行，则需要 Java Build Path -> Libraries -> Native library location 指定dll文件所在目录，不然运行时会提示找不到dll库；
+    也可以添加vm参数 -Djava.library.path=xxx/xxx/ 指定dll文件所在目录；
+    如果打成jar包，则需要在jar包外部放置dll文件，然后写一个bat批处理脚本运行jar包并指定dll文件所在目录即可（具体细节见demo.zip）。
+
+
+由于是借助dev-c++编译生成dll文件，所以没用到CMakeLists.txt 
+
+在windows环境借助android studio编译生成so文件，然后把so文件拷贝到centos环境中，运行jar包提示：
+  java.lang.UnsatisfiedLinkError: /root/dddd/demo/x64/libhaha.so: /lib64/libc.so: invalid ELF header
+因此必须在centos环境下编译生成so文件才行，具体步骤如下：
+1、把写好的c/cpp文件拷贝到centos环境下（假设我们的文件是my_DoSomething.h、native-lib.cpp，最终生成的文件是libhaha.so）；
+2、然后运行下面的命令即可编译生成so文件：
+  [root@bogon native]# g++ native-lib.cpp -I/usr/local/java/jdk1.8.0_111/include -I/usr/local/java/jdk1.8.0_111/include/linux -fPIC -shared -o libhaha.so
+
+g++ 编译c、c++文件都会调用c++编译器
+gcc 编译c文件会调用c编译器，编译c++文件会调用c++编译器
+
+springboot项目中使用jni的方式也类似，引入dll、so库文件，按照一定的命名规则创建java native方法，引入库，
+然后调native方法即可。
+      
